@@ -1,4 +1,4 @@
-const keys = require('../keys.js');
+const keys = require('./keys.js');
 
 var createError = require('http-errors');
 var express = require('express');
@@ -18,7 +18,7 @@ const authMiddleware = require('./middleware/authenticate');
 const mongoConnection = require('./mongoConnection');
 const redisClient = require('./redisClient');
 const { deleteWorker, updateWorker } = require('./amqpWorkers/workers.js');
-const keys = require('./keys.js');
+
 /*
   Setting up counter
 */
@@ -28,7 +28,7 @@ counter.addCount();
 
 //Enable CORS
 app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', "https://create-shorturl.herokuapp.com");
+    res.setHeader('Access-Control-Allow-Origin', keys.CLIENT_HOST_TO_ALLOW);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
