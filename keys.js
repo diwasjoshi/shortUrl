@@ -1,0 +1,12 @@
+module.exports = {
+  SECRET_KEY: process.env.SECRET_KEY,
+  ALPHABET: process.env.ALPHABET,
+  REDIS_HOST: process.env.REDIS_HOST,
+  REDIS_PORT: process.env.REDIS_PORT,
+  AQMP_HOST: process.env.AQMP_HOST,
+  MONGO_HOST: process.env.MONGO_HOST,
+  AMQP_DELETE_QUEUE: process.env.AMQP_DELETE_QUEUE,
+  AMQP_UPDATE_QUEUE: process.env.AMQP_UPDATE_QUEUE,
+  COUNTER_INCREMENT_VALUE: process.env.COUNTER_INCREMENT_VALUE,
+  SHORT_URLS_HOST: process.env.SHORT_URLS_HOST,
+};
