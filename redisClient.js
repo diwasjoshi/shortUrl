@@ -1,6 +1,6 @@
 const keys = require('./keys.js');
 var redis = require('redis');
-var redisClient = redis.createClient(keys.REDIS_PORT, keys.REDIS_HOST);
+var redisClient = redis.createClient({port: keys.REDIS_PORT, host: keys.REDIS_HOST, password: REDIS_PASS});
 redisClient.config("SET", "notify-keyspace-events", "KExe");
 
 /*var RedisNotifier = require('redis-notifier');
