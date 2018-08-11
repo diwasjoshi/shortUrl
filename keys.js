@@ -3,7 +3,7 @@ module.exports = {
   ALPHABET: process.env.ALPHABET,
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_PORT: process.env.REDIS_PORT,
-  REDIS_PASS: process.env.REDDIS_PASS,
+  REDIS_PASS: process.env.REDIS_PASS,
   AQMP_HOST: process.env.AQMP_HOST,
   MONGO_HOST: process.env.MONGO_HOST,
   AMQP_DELETE_QUEUE: process.env.AMQP_DELETE_QUEUE,
