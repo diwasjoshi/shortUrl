@@ -47,7 +47,7 @@ app.use(bodyParser.json());
 app.use(useragent.express());
 
 // middleware for authentication
-app.use(authMiddleware);
+//app.use(authMiddleware);
 
 // routes handling
 app.use('/users', usersRouter);

@@ -9,9 +9,11 @@ var redisClient = require('../redisClient');
 const amqp = require('amqplib/callback_api');
 
 var moment = require('moment');
+const authMiddleware = require('../middleware/authenticate');
+const checkAuthMiddleware = require('../middleware/checkAuthentication');
 
-router.get('/:shortCode', function(req, res, next){
-  const { shortCode } = req.params;
+router.post('/urlredirection', function(req, res, next){
+  const { shortCode } = req.body;
   redisClient.hgetall(shortCode, function(err, reply){
     if(err ||  !reply){
       ShortUrl.findOne({shortCode: shortCode}, function(err, shortUrl){
@@ -52,22 +54,24 @@ router.get('/:shortCode', function(req, res, next){
   });
 });
 
-router.post('/makeurl', async function(req, res, next) {
+router.post('/makeurl', checkAuthMiddleware, async function(req, res, next) {
   return createUrl(req, res, next);
 });
 
-router.post('/geturldata', function(req, res, next){
-  const { shortCode } = req.body;
+router.post('/geturldata', authMiddleware, function(req, res, next){
+  const { shortUrl } = req.body;
+  shortCode = shortUrl.replace(keys.SHORT_URLS_HOST + "/", "");
   if(!shortCode)
     return res.status(400).send({"status": 400, "error": "params missing"});
 
   redisClient.hgetall(shortCode, function(err, reply){
     if(err ||  !reply){
       ShortUrl.findOne({shortCode: shortCode}, function(err, shortUrl){
-        var data = {shortCode};
+        var data = {};
         data.originalUrl = shortUrl.originalUrl;
         data.analytics = shortUrl.analytics;
         data.privateUsers = shortUrl.privateUsers;
+        data.shortUrl = keys.SHORT_URLS_HOST + "/" + shortUrl.shortCode;
         return res.status(200).send({"status": 200, "urldata": data});
       });
     }else{

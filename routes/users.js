@@ -7,14 +7,7 @@ var localStrategy = require('passport-local').Strategy;
 
 var jwt    = require('jsonwebtoken');
 
-/*router.get('/profile', function(req, res, next){
-    if (!req.user){
-        return res.redirect('login');
-    }
-    res.render('accounts/profile', {
-        errors: req.flash('errors'),
-    });
-});*/
+const authMiddleware = require('../middleware/authenticate');
 
 
 router.post('/register', function(req, res, next){
@@ -67,11 +60,10 @@ router.get('/showuser', function(req, res){
 });
 
 
-router.get('/getallurls', function(req, res){
-
+router.get('/getallurls', authMiddleware, function(req, res){
   User.find({email: req.user.email}).
-  select("email urls -_id").
-  populate('urls', ['originalUrl', 'shortCode']).exec(function(err, user){
+  select("email urls").
+  populate('urls').exec(function(err, user){
     urls = user[0].urls;
 
     return res.status(200).send({
@@ -87,7 +79,7 @@ router.get('/getallurls', function(req, res){
   });
 });
 
-router.get('/logout', function(req, res){
+router.get('/logout', authMiddleware, function(req, res){
   res.clearCookie("auth_token");
   return res.status(200).send({"status": 200, "message": "successfull logout"});
 })

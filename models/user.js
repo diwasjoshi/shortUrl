@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var Schema = mongoose.Schema;
-//var ShortUrl = require('./shortUrl');
+
 
 var UserSchema = new Schema({
 
