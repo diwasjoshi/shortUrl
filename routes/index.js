@@ -89,7 +89,7 @@ router.post('/geturldata', authMiddleware, function(req, res, next){
 })
 
 function createUrl(req, res, next){
-  const { url, expiryDate, privateEmails } = req.body;
+  const { url, expiryDate, privateEmails, customPath } = req.body;
   var shortUrl = new ShortUrl(), num = counter.getCount();
   shortCode = encode(num);
 
@@ -104,6 +104,9 @@ function createUrl(req, res, next){
     shortUrl.isPrivate = true;
     shortUrl.privateUsers = privateEmails;
   }
+
+  if(typeof customPath !== 'undefined')
+    return createUrlCustom(req, res, shortUrl, customPath);
 
   shortUrl.save(function(err){
     if(err && err.code === 11000){
@@ -125,6 +128,26 @@ function createUrl(req, res, next){
   });
 }
 
+function createUrlCustom(req, res, shortUrl, customPath){
+  shortUrl.shortCode = customPath;
+
+  shortUrl.save(function(err){
+    if(err && err.code === 11000){
+
+      return res.status(404).send({"status": 404, "error": "Choose some other path"});
+    }
+
+    if(req.userLoggedIn){
+      User.findOne({email: req.user.email}, function(err, user){
+          if(user){
+            user.urls.push(shortUrl);
+            user.save();
+          }
+      });
+    }
+    res.status(200).send({"status": 200, shortUrl: keys.SHORT_URLS_HOST + "/" + shortUrl.shortCode, originalUrl: shortUrl.originalUrl});
+  });
+}
 function encode(num){
   const alphabet = keys.ALPHABET;
   var enc = "", base = alphabet.length;
