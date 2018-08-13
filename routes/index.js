@@ -130,22 +130,27 @@ function createUrl(req, res, next){
 
 function createUrlCustom(req, res, shortUrl, customPath){
   shortUrl.shortCode = customPath;
+  ShortUrl.findOne({shortCode: customPath}, function(err, shorturl){
+    if(!shorturl){
+      shortUrl.save(function(err){
+        if(err && err.code === 11000){
 
-  shortUrl.save(function(err){
-    if(err && err.code === 11000){
+          return res.status(404).send({"status": 404, "error": "Choose some other path"});
+        }
 
+        if(req.userLoggedIn){
+          User.findOne({email: req.user.email}, function(err, user){
+              if(user){
+                user.urls.push(shortUrl);
+                user.save();
+              }
+          });
+        }
+        res.status(200).send({"status": 200, shortUrl: keys.SHORT_URLS_HOST + "/" + shortUrl.shortCode, originalUrl: shortUrl.originalUrl});
+      });
+    }else{
       return res.status(404).send({"status": 404, "error": "Choose some other path"});
     }
-
-    if(req.userLoggedIn){
-      User.findOne({email: req.user.email}, function(err, user){
-          if(user){
-            user.urls.push(shortUrl);
-            user.save();
-          }
-      });
-    }
-    res.status(200).send({"status": 200, shortUrl: keys.SHORT_URLS_HOST + "/" + shortUrl.shortCode, originalUrl: shortUrl.originalUrl});
   });
 }
 function encode(num){
