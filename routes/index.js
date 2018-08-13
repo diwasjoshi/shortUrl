@@ -16,6 +16,7 @@ router.post('/urlredirection', function(req, res, next){
   const { shortCode } = req.body;
   redisClient.hgetall(shortCode, function(err, reply){
     if(err ||  !reply){
+      console.log('from DB');
       ShortUrl.findOne({shortCode: shortCode}, function(err, shortUrl){
         if(!shortUrl) //if no such url found.
           return res.status(404).send({"status": 404, "message": "url not found"});
@@ -34,14 +35,19 @@ router.post('/urlredirection', function(req, res, next){
         var requiredKeys = ["originalUrl", "expiryDate", "analytics", "shortCode", "isPrivate", "privateUsers"];
         cacheResults(requiredKeys.reduce((acc, cur) => {
           if(cur in shortUrl && shortUrl[cur]){
-            acc[cur] = shortUrl[cur];
+            if(cur === "expiryDate")
+              acc[cur] = shortUrl[cur].toUTCString();
+            else
+              acc[cur] = shortUrl[cur];
           }
           return acc;
         }, {}), req.useragent);
         return res.status(200).send({"status": 200, "url": shortUrl.originalUrl});
       });
     }else{
-      if(typeof reply.expiryDate !== 'undefined' && new Date().valueOf() >= reply.expiryDate.valueOf()){
+      console.log('from cache');
+      let eDate = reply.expiryDate;
+      if(typeof eDate !== 'undefined' && new Date().valueOf() >= Date.parse(eDate)){
         deleteUrl(reply.shortCode);
         return res.status(404).send({"status": 404, "message": "url not found"});
       }
