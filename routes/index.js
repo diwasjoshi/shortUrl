@@ -12,7 +12,7 @@ var moment = require('moment');
 const authMiddleware = require('../middleware/authenticate');
 const checkAuthMiddleware = require('../middleware/checkAuthentication');
 
-router.post('/urlredirection', function(req, res, next){
+router.post('/urlredirection', checkAuthMiddleware, function(req, res, next){
   const { shortCode } = req.body;
   redisClient.hgetall(shortCode, function(err, reply){
     if(err ||  !reply){
@@ -20,7 +20,6 @@ router.post('/urlredirection', function(req, res, next){
       ShortUrl.findOne({shortCode: shortCode}, function(err, shortUrl){
         if(!shortUrl) //if no such url found.
           return res.status(404).send({"status": 404, "message": "url not found"});
-
         if(shortUrl.isPrivate &&
             !(req.userLoggedIn && shortUrl.privateUsers.includes(req.user.email))){ // if private email and user not in private list.
           return res.status(404).send({"status": 404, "message": "url not found"});
@@ -101,7 +100,7 @@ function createUrl(req, res, next){
   if(typeof expiryDate !== 'undefined')
     shortUrl.expiryDate = expiryDate;
 
-  if(req.isLoggedIn && typeof privateEmails !== 'undefined'){
+  if(req.userLoggedIn && typeof privateEmails !== 'undefined'){
     shortUrl.isPrivate = true;
     shortUrl.privateUsers = privateEmails;
   }
